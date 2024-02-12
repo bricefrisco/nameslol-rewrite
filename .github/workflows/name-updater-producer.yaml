@@ -23,7 +23,7 @@ jobs:
         working-directory: ./shared
 
       - name: Test Producer
-        run: go test .
+        run: go test -v .
         working-directory: ./name-updater/producer
 
       - name: Build Go Lambda Artifact

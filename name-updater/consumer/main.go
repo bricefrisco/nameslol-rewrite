@@ -59,7 +59,7 @@ func HandleRequest(_ context.Context, event events.SQSEvent) error {
 			return err
 		}
 
-		log.Printf("summoner '%v' updated in region '%v'", sqsMessage.Name, sqsMessage.Region)
+		log.Printf("summoner '%v' updated in region '%v'", summoner.Name, summoner.Region)
 	}
 
 	return nil

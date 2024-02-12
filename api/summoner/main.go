@@ -12,7 +12,7 @@ import (
 )
 
 type ErrorResponse struct {
-	message string
+	Message string
 }
 
 type SummonersService interface {
@@ -46,14 +46,12 @@ func init() {
 }
 
 func errorResponse(statusCode int, message string) events.APIGatewayProxyResponse {
-	res := &ErrorResponse{message: message}
-
-	jsonBody, err := json.Marshal(res)
+	jsonBody, err := json.Marshal(&ErrorResponse{
+		Message: message,
+	})
 	if err != nil {
 		log.Fatalf("Error marshalling error response: %v\n", err)
 	}
-
-	log.Printf("Error response: %v\n", string(jsonBody))
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: statusCode,

@@ -106,7 +106,7 @@ func TestHandleRequest_ValidatesNameTooShort(t *testing.T) {
 		t.Errorf("Expected status code 400, got %d", res.StatusCode)
 	}
 
-	if strings.Contains(res.Body, "must be at least 3") {
+	if !strings.Contains(res.Body, "must be at least 3") {
 		t.Errorf("Expected body to contain 'must be at least 3', got %s", res.Body)
 	}
 }
@@ -130,7 +130,7 @@ func TestHandleRequest_ValidatesNameTooLong(t *testing.T) {
 		t.Errorf("Expected status code 400, got %d", res.StatusCode)
 	}
 
-	if strings.Contains(res.Body, "must be at most 16") {
+	if !strings.Contains(res.Body, "must be at most 16") {
 		t.Errorf("Expected body to contain 'must be at most 16', got %s", res.Body)
 	}
 }
@@ -156,7 +156,7 @@ func TestHandleRequest_ValidatesRegion(t *testing.T) {
 		t.Errorf("Expected status code 400, got %d", res.StatusCode)
 	}
 
-	if strings.Contains(res.Body, "Invalid 'region'") {
+	if !strings.Contains(res.Body, "Invalid 'region'") {
 		t.Errorf("Expected body to contain 'Invalid 'region'', got %s", res.Body)
 	}
 
@@ -223,7 +223,7 @@ func TestHandleRequest_ReturnsErrorOnFetchError(t *testing.T) {
 		t.Errorf("Expected status code 500, got %d", res.StatusCode)
 	}
 
-	if strings.Contains(res.Body, "Internal server error") {
+	if !strings.Contains(res.Body, "Internal server error") {
 		t.Errorf("Expected body to contain 'Internal server error', got %s", res.Body)
 	}
 }
@@ -250,7 +250,7 @@ func TestHandleRequest_Returns404WhenSummonerNotFound(t *testing.T) {
 		t.Errorf("Expected status code 404, got %d", res.StatusCode)
 	}
 
-	if strings.Contains(res.Body, "Summoner not found") {
+	if !strings.Contains(res.Body, "Summoner not found") {
 		t.Errorf("Expected body to contain 'Summoner not found', got %s", res.Body)
 	}
 }

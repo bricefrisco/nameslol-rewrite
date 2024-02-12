@@ -19,10 +19,10 @@ jobs:
           go-version: ">=1.21.3"
 
       - name: Test Shared Libraries
-        run: go test -v ../../shared/
+        run: go test -v shared/
 
-      - name: Test
-        run: go test
+      - name: Test Producer
+        run: go test name-updater/producer
 
       - name: Build Go Lambda Artifact
         run: GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o bootstrap -tags lambda.norpc main.go

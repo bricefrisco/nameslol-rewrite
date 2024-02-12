@@ -124,5 +124,4 @@ func HandleRequest(ctx context.Context, event *Event) error {
 
 func main() {
 	lambda.Start(HandleRequest)
-	// test cicd
 }

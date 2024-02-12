@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"io"
 	"math"
 	"net/http"
 	"strconv"
@@ -98,7 +99,15 @@ func (s *Summoners) Fetch(region string, summonerName string) (*SummonerDTO, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("riot api returned status code %d with body %s", resp.StatusCode, resp.Body)
+		var responseBody string
+
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			responseBody = "(unknown)"
+		}
+
+		responseBody = string(bodyBytes)
+		return nil, fmt.Errorf("riot api returned status code %d with body %s", resp.StatusCode, responseBody)
 	}
 
 	var riotSummoner RiotSummonerDTO

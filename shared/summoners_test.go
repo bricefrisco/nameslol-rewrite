@@ -603,7 +603,7 @@ func TestSave_CallsDynamoDBPutItemWithCorrectInput(t *testing.T) {
 			"aid": &types.AttributeValueMemberS{Value: "123"},
 			"rd":  &types.AttributeValueMemberN{Value: "123"},
 			"l":   &types.AttributeValueMemberN{Value: "30"},
-			"nl":  &types.AttributeValueMemberN{Value: "NA#4"},
+			"nl":  &types.AttributeValueMemberS{Value: "NA#4"},
 			"ld":  &types.AttributeValueMemberN{Value: "123456"},
 			"si":  &types.AttributeValueMemberN{Value: "123"},
 		},
@@ -641,7 +641,7 @@ func TestSave_CallsDynamoDBPutItemWithCorrectInput(t *testing.T) {
 		t.Errorf("expected %s, got %s", expectedInput.Item["l"].(*types.AttributeValueMemberN).Value, actualInput.Item["l"].(*types.AttributeValueMemberN).Value)
 	}
 
-	if actualInput.Item["nl"].(*types.AttributeValueMemberN).Value != expectedInput.Item["nl"].(*types.AttributeValueMemberN).Value {
+	if actualInput.Item["nl"].(*types.AttributeValueMemberS).Value != expectedInput.Item["nl"].(*types.AttributeValueMemberS).Value {
 		t.Errorf("expected %s, got %s", expectedInput.Item["nl"].(*types.AttributeValueMemberN).Value, actualInput.Item["nl"].(*types.AttributeValueMemberN).Value)
 	}
 

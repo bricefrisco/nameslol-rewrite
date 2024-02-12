@@ -120,7 +120,7 @@ func (s *Summoners) Save(summoner *SummonerDTO) error {
 			"aid": &types.AttributeValueMemberS{Value: summoner.AccountID},
 			"rd":  &types.AttributeValueMemberN{Value: strconv.FormatInt(summoner.RevisionDate, 10)},
 			"l":   &types.AttributeValueMemberN{Value: strconv.Itoa(summoner.Level)},
-			"nl":  &types.AttributeValueMemberN{Value: summoner.Region + "#" + strconv.Itoa(len(summoner.Name))},
+			"nl":  &types.AttributeValueMemberS{Value: summoner.Region + "#" + strconv.Itoa(len(summoner.Name))},
 			"ld":  &types.AttributeValueMemberN{Value: strconv.FormatInt(summoner.LastUpdated, 10)},
 			"si":  &types.AttributeValueMemberN{Value: strconv.Itoa(summoner.SummonerIcon)},
 		},

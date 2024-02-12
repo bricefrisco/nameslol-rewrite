@@ -5,6 +5,7 @@ on:
     branches: [ master ]
     paths:
       - 'name-updater/producer/**'
+  workflow_dispatch:
 
 jobs:
   package-and-deploy:

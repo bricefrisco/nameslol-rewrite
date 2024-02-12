@@ -5,6 +5,8 @@ on:
     branches: [ master ]
     paths:
       - 'name-updater/consumer/**'
+  workflow_dispatch:
+
 
 jobs:
   package-and-deploy:

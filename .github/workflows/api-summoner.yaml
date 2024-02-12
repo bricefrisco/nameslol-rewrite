@@ -1,10 +1,10 @@
-name: name-updater-consumer
+name: api-summoner
 
 on:
   push:
     branches: [ master ]
     paths:
-      - 'name-updater/consumer/**'
+      - 'api/summoner/**'
       - 'shared/**'
   workflow_dispatch:
 
@@ -24,13 +24,13 @@ jobs:
         run: go test -v .
         working-directory: ./shared
 
-      - name: Test Consumer
+      - name: Test
         run: go test -v .
-        working-directory: ./name-updater/consumer
+        working-directory: ./api/summoner
 
       - name: Build Go Lambda Artifact
         run: GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o bootstrap -tags lambda.norpc main.go
-        working-directory: ./name-updater/consumer
+        working-directory: ./api/summoner
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -46,8 +46,8 @@ jobs:
 
       - name: Initialize Terraform
         run: terraform init
-        working-directory: ./name-updater/consumer
+        working-directory: ./api/summoner
 
       - name: Deploy with Terraform
         run: terraform apply -auto-approve
-        working-directory: ./name-updater/consumer
+        working-directory: ./api/summoner

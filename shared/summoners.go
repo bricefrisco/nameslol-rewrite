@@ -14,9 +14,13 @@ type DynamoDBService interface {
 	Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 }
 
+type RegionsService interface {
+	Validate(region string) bool
+}
+
 type Summoners struct {
 	dynamodb  DynamoDBService
-	regions   *Regions
+	regions   RegionsService
 	tableName string
 }
 

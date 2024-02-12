@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/bricefrisco/nameslol/shared"
 	"log"
 	"os"
@@ -14,6 +17,11 @@ type Event struct {
 	RefreshType string `json:"refreshType"`
 }
 
+type SQSMessage struct {
+	Region string `json:"region"`
+	Name   string `json:"name"`
+}
+
 type SummonerService interface {
 	GetBetweenDate(region string, limit int32, start int64, end int64) ([]*shared.SummonerDTO, error)
 }
@@ -22,10 +30,18 @@ type RegionService interface {
 	GetAll() map[string]string
 }
 
+type SQSService interface {
+	SendMessage(ctx context.Context, params *sqs.SendMessageInput, optFns ...func(*sqs.Options)) (*sqs.SendMessageOutput, error)
+}
+
 var summoners SummonerService
 var regions RegionService
+var queue SQSService
+var queueUrl string
 
 func init() {
+	log.SetFlags(0)
+
 	var err error
 
 	summoners, err = shared.NewSummoners(os.Getenv("DYNAMODB_TABLE"))
@@ -34,6 +50,14 @@ func init() {
 	}
 
 	regions = shared.NewRegions()
+
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Fatalf("could not load AWS config, %v", err)
+	}
+
+	queue = sqs.NewFromConfig(cfg)
+	queueUrl = os.Getenv("QUEUE_URL")
 }
 
 func getUpdateBetweenDates(refreshType string) (int64, int64, error) {
@@ -48,20 +72,50 @@ func getUpdateBetweenDates(refreshType string) (int64, int64, error) {
 	return 0, 0, fmt.Errorf("invalid refreshType '%s'", refreshType)
 }
 
-func HandleRequest(_ context.Context, event *Event) error {
+func sendToQueue(ctx context.Context, region string, name string) error {
+	body := &SQSMessage{
+		Region: region,
+		Name:   name,
+	}
+
+	jsonBytes, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	messageBody := string(jsonBytes)
+
+	_, err = queue.SendMessage(ctx, &sqs.SendMessageInput{
+		QueueUrl:    &queueUrl,
+		MessageBody: &messageBody,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func HandleRequest(ctx context.Context, event *Event) error {
 	start, end, err := getUpdateBetweenDates(event.RefreshType)
 	if err != nil {
 		return err
 	}
 
 	for region := range regions.GetAll() {
-		summonersToUpdate, err := summoners.GetBetweenDate(region, 10, start, end)
+		summonersToUpdate, err := summoners.GetBetweenDate(region, 8000, start, end)
 		if err != nil {
 			return err
 		}
 
 		for _, s := range summonersToUpdate {
-			log.Println("region:", s.Region, "name:", s.Name)
+			err := sendToQueue(ctx, region, s.Name)
+			if err != nil {
+				return err
+			}
+
+			log.Printf("sent name: %s, region: %s to queue", s.Name, s.Region)
 		}
 	}
 
@@ -70,4 +124,11 @@ func HandleRequest(_ context.Context, event *Event) error {
 
 func main() {
 	lambda.Start(HandleRequest)
+
+	// For local testing
+	// event := &Event{RefreshType: "hourly"}
+	// err := HandleRequest(context.Background(), event)
+	// if err != nil {
+	// 	log.Fatalf("error: %v", err)
+	// }
 }

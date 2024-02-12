@@ -221,7 +221,7 @@ func (s *Summoners) summonerFromRiotSummoner(riotSummoner *RiotSummonerDTO, regi
 	}
 
 	return &SummonerDTO{
-		Name:             strings.ToLower(riotSummoner.Name),
+		Name:             riotSummoner.Name,
 		Region:           region,
 		AccountID:        riotSummoner.AccountId,
 		RevisionDate:     riotSummoner.RevisionDate,

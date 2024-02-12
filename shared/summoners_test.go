@@ -141,7 +141,7 @@ func (m *MockHttpClient) Do(req *http.Request) (*http.Response, error) {
 		AccountId:     "test-aid",
 		ProfileIconId: 1,
 		RevisionDate:  time.Date(2024, time.February, 12, 8, 21, 30, 0, time.UTC).UnixMilli(),
-		Name:          "test",
+		Name:          "Test",
 		Id:            "test-id",
 		Puuid:         "test-puuid",
 		SummonerLevel: 32,
@@ -335,7 +335,7 @@ func TestFetch_ReturnsCorrectSummonerWhenResponseSuccessful(t *testing.T) {
 		t.Errorf("expected nil, got %s", err)
 	}
 
-	if s.Name != "test" {
+	if s.Name != "Test" {
 		t.Errorf("expected test, got %s", s.Name)
 	}
 

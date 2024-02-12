@@ -194,12 +194,16 @@ func TestHandleRequest_CallsSummonersWithCorrectRegion(t *testing.T) {
 	}
 
 	mockSummoners := summoners.(*MockSummonerService)
-	if mockSummoners.Calls[0].Region != "NA" {
-		t.Errorf("expected first call to GetBetweenDate to be for NA, got %s", mockSummoners.Calls[0].Region)
-	}
 
-	if mockSummoners.Calls[1].Region != "EUW" {
-		t.Errorf("expected second call to GetBetweenDate to be for EUW, got %s", mockSummoners.Calls[1].Region)
+	// map doesn't retain order, so we need to check both calls
+	expectedRegions := make(map[string]bool)
+	expectedRegions["NA"] = true
+	expectedRegions["EUW"] = true
+
+	for i, call := range mockSummoners.Calls {
+		if !expectedRegions[call.Region] {
+			t.Errorf("expected call %d to GetBetweenDate to be for NA or EUW, got %s", i, call.Region)
+		}
 	}
 }
 
@@ -286,6 +290,7 @@ func TestHandleRequest_CallsSendToQueueWithCorrectBody(t *testing.T) {
 		t.Errorf("expected no error, got %v", err)
 	}
 
+	// map doesn't retain order, so we need to check both calls
 	mockQueue := queue.(*MockSQSService)
 	body := &SQSMessage{
 		Region: "NA",
@@ -297,9 +302,15 @@ func TestHandleRequest_CallsSendToQueueWithCorrectBody(t *testing.T) {
 		t.Errorf("error marshalling body: %v", err)
 	}
 
-	messageBody := string(jsonBytes)
-	if *mockQueue.Calls[0].params.MessageBody != messageBody {
-		t.Errorf("expected first call to SendMessage to have MessageBody %s, got %s", messageBody, *mockQueue.Calls[0].params.MessageBody)
+	match := false
+	for _, calls := range mockQueue.Calls {
+		if *calls.params.MessageBody == string(jsonBytes) {
+			match = true
+		}
+	}
+
+	if !match {
+		t.Errorf("expected call to SendMessage to have MessageBody %s", string(jsonBytes))
 	}
 }
 

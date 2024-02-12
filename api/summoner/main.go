@@ -101,6 +101,8 @@ func HandleRequest(_ context.Context, request events.APIGatewayProxyRequest) (ev
 	err = summoners.Save(result)
 	if err != nil {
 		log.Printf("Error saving summoner: %v\n", err)
+	} else {
+		log.Printf("Successfully saved summoner: %v\n", result)
 	}
 
 	return successfulResponse(result), nil

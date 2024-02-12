@@ -124,11 +124,4 @@ func HandleRequest(ctx context.Context, event *Event) error {
 
 func main() {
 	lambda.Start(HandleRequest)
-
-	// For local testing
-	// event := &Event{RefreshType: "hourly"}
-	// err := HandleRequest(context.Background(), event)
-	// if err != nil {
-	// 	log.Fatalf("error: %v", err)
-	// }
 }

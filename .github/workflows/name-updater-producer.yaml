@@ -5,6 +5,7 @@ on:
     branches: [ master ]
     paths:
       - 'name-updater/producer/**'
+      - 'shared/**'
   workflow_dispatch:
 
 jobs:

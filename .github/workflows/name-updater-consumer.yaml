@@ -5,6 +5,7 @@ on:
     branches: [ master ]
     paths:
       - 'name-updater/consumer/**'
+      - 'shared/**'
   workflow_dispatch:
 
 

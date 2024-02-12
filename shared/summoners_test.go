@@ -12,7 +12,7 @@ type DynamoDBServiceMock struct {
 	ShouldReturnError bool
 }
 
-func (d *DynamoDBServiceMock) Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error) {
+func (d *DynamoDBServiceMock) Query(_ context.Context, _ *dynamodb.QueryInput, _ ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error) {
 	if d.ShouldReturnError {
 		return nil, fmt.Errorf("error")
 	}
@@ -37,7 +37,7 @@ type RegionsServiceMock struct {
 	ShouldReturnFalse bool
 }
 
-func (r *RegionsServiceMock) Validate(region string) bool {
+func (r *RegionsServiceMock) Validate(_ string) bool {
 	return !r.ShouldReturnFalse
 }
 

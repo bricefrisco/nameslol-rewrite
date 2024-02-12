@@ -49,6 +49,7 @@ func setup() {
 
 	summoners = &SummonersServiceMock{}
 	headers = &HttpHeadersServiceMock{}
+	regions = &RegionsServiceMock{}
 }
 
 func (s *SummonersServiceMock) Fetch(region string, name string) (*shared.SummonerDTO, error) {

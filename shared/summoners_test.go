@@ -184,8 +184,7 @@ func TestCalcAvailabilityDate_WhenLevelIsLessThan6_ReturnsRevisionDatePlus6Month
 	revisionDate := time.Date(2024, time.February, 12, 8, 21, 30, 0, time.UTC)
 	level := int32(3)
 
-	// Daylight savings time, subtract one hour
-	expected := time.Date(2024, time.August, 12, 7, 21, 30, 0, time.UTC).UnixMilli()
+	expected := time.Date(2024, time.August, 12, 8, 21, 30, 0, time.UTC).UnixMilli()
 	result := CalcAvailabilityDate(revisionDate.UnixMilli(), level)
 
 	if result != expected {
@@ -213,8 +212,7 @@ func TestCalcAvailabilityDate_WhenLevelIsGreaterThan30_ReturnsRevisionDatePlus30
 	revisionDate := time.Date(2024, time.February, 12, 8, 21, 30, 0, time.UTC)
 	level := int32(35)
 
-	// Daylight savings time, subtract one hour
-	expected := time.Date(2026, time.August, 12, 7, 21, 30, 0, time.UTC).UnixMilli()
+	expected := time.Date(2026, time.August, 12, 8, 21, 30, 0, time.UTC).UnixMilli()
 	result := CalcAvailabilityDate(revisionDate.UnixMilli(), level)
 
 	if result != expected {
@@ -354,8 +352,7 @@ func TestFetch_ReturnsCorrectSummonerWhenResponseSuccessful(t *testing.T) {
 		t.Errorf("expected %d, got %d", expectedDate, s.RevisionDate)
 	}
 
-	// Daylight savings time, subtract one hour
-	expectedAvailabilityDate := time.Date(2026, time.August, 12, 7, 21, 30, 0, time.UTC).UnixMilli()
+	expectedAvailabilityDate := time.Date(2026, time.August, 12, 8, 21, 30, 0, time.UTC).UnixMilli()
 	if s.AvailabilityDate != expectedAvailabilityDate {
 		t.Errorf("expected %d, got %d", expectedAvailabilityDate, s.AvailabilityDate)
 	}

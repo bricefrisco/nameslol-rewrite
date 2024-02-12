@@ -167,7 +167,7 @@ func (s *Summoners) GetBetweenDate(region string, limit int32, t1 int64, t2 int6
 
 func CalcAvailabilityDate(revisionDate int64, level int32) int64 {
 	monthsToAdd := math.Min(30, math.Max(6, float64(level)))
-	return time.UnixMilli(revisionDate).AddDate(0, int(monthsToAdd), 0).UnixMilli()
+	return time.UnixMilli(revisionDate).UTC().AddDate(0, int(monthsToAdd), 0).UnixMilli()
 }
 
 func SummonersFromQueryOutput(output *dynamodb.QueryOutput) ([]*SummonerDTO, error) {

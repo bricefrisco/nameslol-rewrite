@@ -28,6 +28,7 @@ jobs:
 
       - name: Build Go Lambda Artifact
         run: GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o bootstrap -tags lambda.norpc main.go
+        working-directory: ./name-updater/producer
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -43,6 +44,8 @@ jobs:
 
       - name: Initialize Terraform
         run: terraform init
+        working-directory: ./name-updater/producer
 
       - name: Deploy with Terraform
         run: terraform apply -auto-approve
+        working-directory: ./name-updater/producer

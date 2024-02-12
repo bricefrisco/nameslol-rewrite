@@ -22,21 +22,21 @@ type SQSMessage struct {
 	Name   string `json:"name"`
 }
 
-type SummonerService interface {
+type summonerService interface {
 	GetBetweenDate(region string, limit int32, start int64, end int64) ([]*shared.SummonerDTO, error)
 }
 
-type RegionService interface {
+type regionService interface {
 	GetAll() map[string]string
 }
 
-type SQSService interface {
+type sqsService interface {
 	SendMessage(ctx context.Context, params *sqs.SendMessageInput, optFns ...func(*sqs.Options)) (*sqs.SendMessageOutput, error)
 }
 
-var summoners SummonerService
-var regions RegionService
-var queue SQSService
+var summoners summonerService
+var regions regionService
+var queue sqsService
 var queueUrl string
 
 func init() {
@@ -44,7 +44,7 @@ func init() {
 
 	var err error
 
-	summoners, err = shared.NewSummoners(os.Getenv("DYNAMODB_TABLE"))
+	summoners, err = shared.NewSummoners(os.Getenv("DYNAMODB_TABLE"), os.Getenv("RIOT_API_TOKEN"))
 	if err != nil {
 		log.Fatalf("could not create summoners service, %v", err)
 	}

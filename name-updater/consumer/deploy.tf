@@ -1,14 +1,14 @@
 terraform {
   backend "s3" {
     bucket = "nameslol-deployments"
-    key    = "terraform/name-updater-producer"
+    key    = "terraform/name-updater-consumer"
     region = "us-east-1"
   }
 }
 
 variable "app_name" {
   type    = string
-  default = "name-updater-producer"
+  default = "name-updater-consumer"
 }
 
 provider "aws" {
@@ -61,7 +61,8 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
       {
         "Effect" : "Allow",
         "Action" : [
-          "dynamodb:Query"
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
         ],
         "Resource" : [
           data.aws_dynamodb_table.nameslol.arn,
@@ -71,8 +72,9 @@ resource "aws_iam_role_policy" "lambda_exec_policy" {
       {
         "Effect" : "Allow",
         "Action" : [
-          "sqs:SendMessage",
-          "sqs:BatchSendMessage",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
         ],
         "Resource" : [
           data.aws_sqs_queue.name-update-queue.arn
@@ -100,7 +102,6 @@ resource "aws_lambda_function" "default" {
 
   environment {
     variables = {
-      QUEUE_URL      = data.aws_sqs_queue.name-update-queue.url
       DYNAMODB_TABLE = data.aws_dynamodb_table.nameslol.name
       RIOT_API_TOKEN = data.aws_ssm_parameter.riot-api-token.value
     }

@@ -53,6 +53,8 @@ func errorResponse(statusCode int, message string) events.APIGatewayProxyRespons
 		log.Fatalf("Error marshalling error response: %v\n", err)
 	}
 
+	log.Printf("Error response: %v\n", string(jsonBody))
+
 	return events.APIGatewayProxyResponse{
 		StatusCode: statusCode,
 		Body:       string(jsonBody),

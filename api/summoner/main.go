@@ -36,7 +36,7 @@ func init() {
 	log.SetFlags(0)
 
 	var err error
-	summoners, err = shared.NewSummoners(os.Getenv("DYNAMODB_TABLE"), os.Getenv("RIOT_API_KEY"))
+	summoners, err = shared.NewSummoners(os.Getenv("DYNAMODB_TABLE"), os.Getenv("RIOT_API_TOKEN"))
 	if err != nil {
 		log.Fatalf("Error creating summoners: %v\n", err)
 	}
@@ -46,7 +46,7 @@ func init() {
 }
 
 func errorResponse(statusCode int, message string) events.APIGatewayProxyResponse {
-	res := ErrorResponse{message: message}
+	res := &ErrorResponse{message: message}
 
 	jsonBody, err := json.Marshal(res)
 	if err != nil {

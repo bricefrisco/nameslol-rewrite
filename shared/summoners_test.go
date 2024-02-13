@@ -222,17 +222,8 @@ func TestCalcAvailabilityDate_WhenLevelIsGreaterThan30_ReturnsRevisionDatePlus30
 
 func TestFetch_WhenRegionIsInvalid_ReturnsError(t *testing.T) {
 	setup()
-
-	summoners = &Summoners{
-		dynamodb:   &DynamoDBServiceMock{},
-		regions:    &RegionsServiceMock{IsInvalid: true},
-		http:       &MockHttpClient{},
-		tableName:  tableName,
-		riotApiKey: riotApiKey,
-	}
-
+	summoners.regions.(*RegionsServiceMock).IsInvalid = true
 	_, err := summoners.Fetch("invalid", "test")
-
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
@@ -240,17 +231,8 @@ func TestFetch_WhenRegionIsInvalid_ReturnsError(t *testing.T) {
 
 func TestFetch_WhenHttpClientFails_ReturnsError(t *testing.T) {
 	setup()
-
-	summoners = &Summoners{
-		dynamodb:   &DynamoDBServiceMock{},
-		regions:    &RegionsServiceMock{},
-		http:       &MockHttpClient{ShouldFail: true},
-		tableName:  tableName,
-		riotApiKey: riotApiKey,
-	}
-
+	summoners.http.(*MockHttpClient).ShouldFail = true
 	_, err := summoners.Fetch("na1", "test")
-
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
@@ -287,21 +269,11 @@ func TestFetch_CallsHttpClientWithCorrectAuthToken(t *testing.T) {
 
 func TestFetch_WhenHttpClientReturns404_ReturnsError(t *testing.T) {
 	setup()
-
-	summoners = &Summoners{
-		dynamodb:   &DynamoDBServiceMock{},
-		regions:    &RegionsServiceMock{},
-		http:       &MockHttpClient{ShouldReturn404: true},
-		tableName:  tableName,
-		riotApiKey: riotApiKey,
-	}
-
+	summoners.http.(*MockHttpClient).ShouldReturn404 = true
 	_, err := summoners.Fetch("na1", "test")
-
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
-
 	expectedErrorMessage := "summoner not found"
 	actualErrorMessage := err.Error()
 	if actualErrorMessage != expectedErrorMessage {
@@ -311,17 +283,8 @@ func TestFetch_WhenHttpClientReturns404_ReturnsError(t *testing.T) {
 
 func TestFetch_WhenHttpClientReturns500_ReturnsError(t *testing.T) {
 	setup()
-
-	summoners = &Summoners{
-		dynamodb:   &DynamoDBServiceMock{},
-		regions:    &RegionsServiceMock{},
-		http:       &MockHttpClient{ShouldReturn500: true},
-		tableName:  tableName,
-		riotApiKey: riotApiKey,
-	}
-
+	summoners.http.(*MockHttpClient).ShouldReturn500 = true
 	_, err := summoners.Fetch("na1", "test")
-
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
@@ -371,31 +334,18 @@ func TestFetch_ReturnsCorrectSummonerWhenResponseSuccessful(t *testing.T) {
 }
 
 func TestGetBetweenDate_ReturnsErrorIfRegionValidationFails(t *testing.T) {
-	tableName = "test-table"
-	riotApiKey = "riot-api-key"
-
-	s := &Summoners{
-		dynamodb:   &DynamoDBServiceMock{},
-		regions:    &RegionsServiceMock{IsInvalid: true},
-		http:       &MockHttpClient{},
-		tableName:  tableName,
-		riotApiKey: riotApiKey,
-	}
-
-	_, err := s.GetBetweenDate("invalid", 10, 0, 0)
+	setup()
+	summoners.regions.(*RegionsServiceMock).IsInvalid = true
+	_, err := summoners.GetBetweenDate("invalid", 10, 0, 0)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
 }
 
 func TestGetBetweenDate_ReturnsErrorIfDynamoDBQueryFails(t *testing.T) {
-	s := &Summoners{
-		dynamodb:  &DynamoDBServiceMock{ShouldReturnError: true},
-		regions:   &RegionsServiceMock{},
-		tableName: "test-table",
-	}
-
-	_, err := s.GetBetweenDate("region", 10, 0, 0)
+	setup()
+	summoners.dynamodb.(*DynamoDBServiceMock).ShouldReturnError = true
+	_, err := summoners.GetBetweenDate("region", 10, 0, 0)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
@@ -445,13 +395,9 @@ func TestGetBetweenDate_CallsDynamoDBQueryWithCorrectInput(t *testing.T) {
 }
 
 func TestGetBetweenDate_ReturnsCorrectSummonerDTOs(t *testing.T) {
-	s := &Summoners{
-		dynamodb:  &DynamoDBServiceMock{},
-		regions:   &RegionsServiceMock{},
-		tableName: "test-table",
-	}
+	setup()
 
-	result, err := s.GetBetweenDate("region", 10, 0, 0)
+	result, err := summoners.GetBetweenDate("region", 10, 0, 0)
 	if err != nil {
 		t.Errorf("expected nil, got %v", err)
 	}
@@ -562,14 +508,9 @@ func TestSummonersFromQueryOutput(t *testing.T) {
 }
 
 func TestSave_ReturnsErrorIfDynamoDBPutItemFails(t *testing.T) {
-	s := &Summoners{
-		dynamodb:   &DynamoDBServiceMock{ShouldReturnError: true},
-		regions:    &RegionsServiceMock{},
-		tableName:  tableName,
-		riotApiKey: riotApiKey,
-	}
-
-	err := s.Save(&SummonerDTO{})
+	setup()
+	summoners.dynamodb.(*DynamoDBServiceMock).ShouldReturnError = true
+	err := summoners.Save(&SummonerDTO{})
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
@@ -655,14 +596,9 @@ func TestSave_CallsDynamoDBPutItemWithCorrectInput(t *testing.T) {
 }
 
 func TestDelete_ReturnsErrorWhenDynamoDBDeleteItemFails(t *testing.T) {
-	s := &Summoners{
-		dynamodb:   &DynamoDBServiceMock{ShouldReturnError: true},
-		regions:    &RegionsServiceMock{},
-		tableName:  tableName,
-		riotApiKey: riotApiKey,
-	}
-
-	err := s.Delete("region", "test")
+	setup()
+	summoners.dynamodb.(*DynamoDBServiceMock).ShouldReturnError = true
+	err := summoners.Delete("region", "test")
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
@@ -691,5 +627,312 @@ func TestDelete_CallsDynamoDBDeleteItemWithCorrectInput(t *testing.T) {
 
 	if actualInput.Key["n"].(*types.AttributeValueMemberS).Value != expectedInput.Key["n"].(*types.AttributeValueMemberS).Value {
 		t.Errorf("expected %s, got %s", expectedInput.Key["n"].(*types.AttributeValueMemberS).Value, actualInput.Key["n"].(*types.AttributeValueMemberS).Value)
+	}
+}
+
+func TestGetAfter_ReturnsErrorIfRegionValidationFails(t *testing.T) {
+	setup()
+	summoners.regions.(*RegionsServiceMock).IsInvalid = true
+	_, err := summoners.GetAfter("invalid", 10, 0, false)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+	}
+}
+
+func TestGetAfter_ReturnsErrorIfDynamoDBQueryFails(t *testing.T) {
+	setup()
+	summoners.dynamodb.(*DynamoDBServiceMock).ShouldReturnError = true
+	_, err := summoners.GetAfter("region", 10, 0, false)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+	}
+}
+
+func TestGetAfter_UsesCorrectTableName(t *testing.T) {
+	setup()
+	_, err := summoners.GetAfter("region", 10, 0, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedTableName := tableName
+	actualTableName := *summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.TableName
+	if actualTableName != expectedTableName {
+		t.Errorf("expected %s, got %s", expectedTableName, actualTableName)
+	}
+}
+
+func TestGetAfter_UsesCorrectLimit(t *testing.T) {
+	setup()
+	_, err := summoners.GetAfter("region", 10, 0, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedLimit := int32(10)
+	actualLimit := *summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.Limit
+	if actualLimit != expectedLimit {
+		t.Errorf("expected %d, got %d", expectedLimit, actualLimit)
+	}
+}
+
+func TestGetAfter_UsesCorrectExpressionAttributeValues(t *testing.T) {
+	setup()
+	_, err := summoners.GetAfter("region", 10, 12345, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expressionAttributeValues := summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.ExpressionAttributeValues
+
+	if expressionAttributeValues[":region"].(*types.AttributeValueMemberS).Value != "region" {
+		t.Errorf("expected region, got %s", expressionAttributeValues["s"].(*types.AttributeValueMemberS).Value)
+	}
+
+	if expressionAttributeValues[":t1"].(*types.AttributeValueMemberN).Value != "12345" {
+		t.Errorf("expected 12345, got %s", expressionAttributeValues["t1"].(*types.AttributeValueMemberN).Value)
+	}
+}
+
+func TestGetAfter_UsesCorrectIndexName(t *testing.T) {
+	setup()
+	_, err := summoners.GetAfter("region", 10, 0, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedIndexName := "region-availability-date-index"
+	actualIndexName := *summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.IndexName
+	if actualIndexName != expectedIndexName {
+		t.Errorf("expected %s, got %s", expectedIndexName, actualIndexName)
+	}
+}
+
+func TestGetAfter_UsesCorrectScanIndexForward(t *testing.T) {
+	setup()
+	_, err := summoners.GetAfter("region", 10, 0, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	actualScanIndexForward := *summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.ScanIndexForward
+	if actualScanIndexForward != true {
+		t.Errorf("expected %t, got %t", true, actualScanIndexForward)
+	}
+}
+
+func TestGetAfter_UsesCorrectKeyConditionExpression_WhenBackwardsFalse(t *testing.T) {
+	setup()
+	_, err := summoners.GetAfter("region", 10, 0, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedKeyConditionExpression := "r = :region and ad > :t1"
+	actualKeyConditionExpression := summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.KeyConditionExpression
+	if *actualKeyConditionExpression != expectedKeyConditionExpression {
+		t.Errorf("expected %s, got %s", expectedKeyConditionExpression, *actualKeyConditionExpression)
+	}
+}
+
+func TestGetAfter_UsesCorrectKeyConditionExpression_WhenBackwardsTrue(t *testing.T) {
+	setup()
+	_, err := summoners.GetAfter("region", 10, 0, true)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedKeyConditionExpression := "r = :region and ad < :t1"
+	actualKeyConditionExpression := summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.KeyConditionExpression
+	if *actualKeyConditionExpression != expectedKeyConditionExpression {
+		t.Errorf("expected %s, got %s", expectedKeyConditionExpression, *actualKeyConditionExpression)
+	}
+}
+
+func TestGetAfter_MapsSummonersFromQueryOutput(t *testing.T) {
+	setup()
+
+	result, err := summoners.GetAfter("region", 10, 0, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(result) != 1 {
+		t.Errorf("expected 1, got %d", len(result))
+	}
+}
+
+func TestGetByNameLength_ReturnsErrorIfRegionValidationFails(t *testing.T) {
+	setup()
+	summoners.regions.(*RegionsServiceMock).IsInvalid = true
+	_, err := summoners.GetByNameLength("invalid", 10, 12, 123, false)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+	}
+}
+
+func TestGetByNameLength_ReturnsErrorIfDynamoDBQueryFails(t *testing.T) {
+	setup()
+	summoners.dynamodb.(*DynamoDBServiceMock).ShouldReturnError = true
+	_, err := summoners.GetByNameLength("region", 10, 12, 123, false)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+	}
+}
+
+func TestGetByNameLength_UsesCorrectTableName(t *testing.T) {
+	setup()
+	_, err := summoners.GetByNameLength("region", 10, 12, 123, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedTableName := tableName
+	actualTableName := *summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.TableName
+	if actualTableName != expectedTableName {
+		t.Errorf("expected %s, got %s", expectedTableName, actualTableName)
+	}
+}
+
+func TestGetByNameLength_UsesCorrectLimit(t *testing.T) {
+	setup()
+	_, err := summoners.GetByNameLength("region", 10, 12, 123, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedLimit := int32(10)
+	actualLimit := *summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.Limit
+	if actualLimit != expectedLimit {
+		t.Errorf("expected %d, got %d", expectedLimit, actualLimit)
+	}
+}
+
+func TestGetByNameLength_UsesCorrectKeyConditionExpression_WhenBackwardsTrue(t *testing.T) {
+	setup()
+	_, err := summoners.GetByNameLength("region", 10, 12, 123, true)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedKeyConditionExpression := "nl = :nameLength and ad < :t1"
+	actualKeyConditionExpression := summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.KeyConditionExpression
+	if *actualKeyConditionExpression != expectedKeyConditionExpression {
+		t.Errorf("expected %s, got %s", expectedKeyConditionExpression, *actualKeyConditionExpression)
+	}
+}
+
+func TestGetByNameLength_UsesCorrectKeyConditionExpression_WhenBackwardsFalse(t *testing.T) {
+	setup()
+	_, err := summoners.GetByNameLength("region", 10, 12, 123, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedKeyConditionExpression := "nl = :nameLength and ad > :t1"
+	actualKeyConditionExpression := summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.KeyConditionExpression
+	if *actualKeyConditionExpression != expectedKeyConditionExpression {
+		t.Errorf("expected %s, got %s", expectedKeyConditionExpression, *actualKeyConditionExpression)
+	}
+}
+
+func TestGetByNameLength_UsesCorrectExpressionAttributeValues(t *testing.T) {
+	setup()
+	_, err := summoners.GetByNameLength("region", 10, 12, 123, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expressionAttributeValues := summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.ExpressionAttributeValues
+
+	if expressionAttributeValues[":nameLength"].(*types.AttributeValueMemberS).Value != "region#12" {
+		t.Errorf("expected region#12, got %s", expressionAttributeValues["s"].(*types.AttributeValueMemberS).Value)
+	}
+
+	if expressionAttributeValues[":t1"].(*types.AttributeValueMemberN).Value != "123" {
+		t.Errorf("expected 123, got %s", expressionAttributeValues["t1"].(*types.AttributeValueMemberN).Value)
+	}
+}
+
+func TestGetByNameLength_UsesCorrectIndexName(t *testing.T) {
+	setup()
+	_, err := summoners.GetByNameLength("region", 10, 12, 123, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	expectedIndexName := "name-length-availability-date-index"
+	actualIndexName := *summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.IndexName
+	if actualIndexName != expectedIndexName {
+		t.Errorf("expected %s, got %s", expectedIndexName, actualIndexName)
+	}
+}
+
+func TestGetByNameLength_UsesCorrectScanIndexForward(t *testing.T) {
+	setup()
+	_, err := summoners.GetByNameLength("region", 10, 12, 123, false)
+	if err != nil {
+		t.Errorf("expected nil, got %v", err)
+	}
+
+	if len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls) != 1 {
+		t.Errorf("expected 1, got %d", len(summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls))
+	}
+
+	actualScanIndexForward := *summoners.dynamodb.(*DynamoDBServiceMock).QueryCalls[0].Input.ScanIndexForward
+	if actualScanIndexForward != true {
+		t.Errorf("expected %t, got %t", true, actualScanIndexForward)
 	}
 }

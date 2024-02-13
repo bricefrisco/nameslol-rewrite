@@ -149,6 +149,70 @@ func (s *Summoners) Delete(region string, summonerName string) error {
 	return err
 }
 
+func (s *Summoners) GetByNameLength(region string, limit int32, nameLength int32, t1 int64, backwards bool) ([]*SummonerDTO, error) {
+	valid := s.regions.Validate(region)
+	if !valid {
+		return nil, fmt.Errorf("invalid region '%s'", region)
+	}
+
+	var keyConditionExpression string
+	if backwards {
+		keyConditionExpression = "nl = :nameLength and ad < :t1"
+	} else {
+		keyConditionExpression = "nl = :nameLength and ad > :t1"
+	}
+
+	output, err := s.dynamodb.Query(context.TODO(), &dynamodb.QueryInput{
+		TableName:              aws.String(s.tableName),
+		Limit:                  aws.Int32(limit),
+		KeyConditionExpression: aws.String(keyConditionExpression),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":nameLength": &types.AttributeValueMemberS{Value: region + "#" + strconv.Itoa(int(nameLength))},
+			":t1":         &types.AttributeValueMemberN{Value: strconv.FormatInt(t1, 10)},
+		},
+		IndexName:        aws.String("name-length-availability-date-index"),
+		ScanIndexForward: aws.Bool(!backwards),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return SummonersFromQueryOutput(output)
+}
+
+func (s *Summoners) GetAfter(region string, limit int32, t1 int64, backwards bool) ([]*SummonerDTO, error) {
+	valid := s.regions.Validate(region)
+	if !valid {
+		return nil, fmt.Errorf("invalid region '%s'", region)
+	}
+
+	var keyConditionExpression string
+	if backwards {
+		keyConditionExpression = "r = :region and ad < :t1"
+	} else {
+		keyConditionExpression = "r = :region and ad > :t1"
+	}
+
+	output, err := s.dynamodb.Query(context.TODO(), &dynamodb.QueryInput{
+		TableName:              aws.String(s.tableName),
+		Limit:                  aws.Int32(limit),
+		KeyConditionExpression: aws.String(keyConditionExpression),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":region": &types.AttributeValueMemberS{Value: region},
+			":t1":     &types.AttributeValueMemberN{Value: strconv.FormatInt(t1, 10)},
+		},
+		IndexName:        aws.String("region-availability-date-index"),
+		ScanIndexForward: aws.Bool(!backwards),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return SummonersFromQueryOutput(output)
+}
+
 func (s *Summoners) GetBetweenDate(region string, limit int32, t1 int64, t2 int64) ([]*SummonerDTO, error) {
 	valid := s.regions.Validate(region)
 	if !valid {

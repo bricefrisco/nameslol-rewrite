@@ -267,9 +267,13 @@ func SummonersFromQueryOutput(output *dynamodb.QueryOutput) ([]*SummonerDTO, err
 			return nil, err
 		}
 
-		summonerIcon, err := strconv.Atoi(item["si"].(*types.AttributeValueMemberN).Value)
-		if err != nil {
-			return nil, err
+		var summonerIcon int
+		summonerIconStr := item["si"]
+		if item["si"] != nil {
+			summonerIcon, err = strconv.Atoi(summonerIconStr.(*types.AttributeValueMemberN).Value)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		summoners[i] = &SummonerDTO{

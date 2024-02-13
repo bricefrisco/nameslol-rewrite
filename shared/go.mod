@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/aws/aws-lambda-go v1.46.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.24.1 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.16 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.14.11 // indirect

@@ -24,11 +24,15 @@ type RegionsServiceMock struct {
 	Calls      []string
 }
 
-type HttpHeadersServiceMock struct {
-}
-
-var headersMap map[string]string
 var summonerDto *shared.SummonerDTO
+var corsOrigins = "test-origin"
+var corsMethods = "test-methods"
+var expectedHeaders = map[string]string{
+	"Access-Control-Allow-Origin":  corsOrigins,
+	"Access-Control-Allow-Methods": corsMethods,
+	"Access-Control-Allow-Headers": "*",
+	"Content-Type":                 "application/json",
+}
 
 func setup() {
 	summonerDto = &shared.SummonerDTO{
@@ -42,14 +46,9 @@ func setup() {
 		SummonerIcon:     123,
 	}
 
-	headersMap = make(map[string]string)
-	headersMap["Access-Control-Allow-Origin"] = "test-origin"
-	headersMap["Access-Control-Allow-Methods"] = "test-methods"
-	headersMap["Content-Type"] = "test-content-type"
-
 	summoners = &SummonersServiceMock{}
-	headers = &HttpHeadersServiceMock{}
 	regions = &RegionsServiceMock{}
+	responses = shared.NewHttpResponses(corsOrigins, corsMethods)
 }
 
 func (s *SummonersServiceMock) Fetch(region string, name string) (*shared.SummonerDTO, error) {
@@ -81,10 +80,6 @@ func (s *RegionsServiceMock) Validate(region string) bool {
 	s.Calls = append(s.Calls, region)
 
 	return !s.ShouldFail
-}
-
-func (h *HttpHeadersServiceMock) CreateHeaders() map[string]string {
-	return headersMap
 }
 
 func TestHandleRequest_ValidatesNameTooShort(t *testing.T) {
@@ -322,7 +317,7 @@ func TestHandleRequest_HasCorrectHeadersOnSuccess(t *testing.T) {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	for k, v := range headersMap {
+	for k, v := range expectedHeaders {
 		if res.Headers[k] != v {
 			t.Errorf("Expected header %s to be %s, got %s", k, v, res.Headers[k])
 		}
@@ -347,7 +342,7 @@ func TestHandleRequest_HasCorrectHeadersOnFailure(t *testing.T) {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	for k, v := range headersMap {
+	for k, v := range expectedHeaders {
 		if res.Headers[k] != v {
 			t.Errorf("Expected header %s to be %s, got %s", k, v, res.Headers[k])
 		}

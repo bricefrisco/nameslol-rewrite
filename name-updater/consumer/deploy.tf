@@ -98,7 +98,7 @@ resource "aws_lambda_function" "default" {
   filename         = data.archive_file.lambda_zip.output_path
   source_code_hash = data.local_file.lambda_zip_contents.content_md5
   runtime          = "provided.al2023"
-  timeout          = 60
+  timeout          = 30
 
   environment {
     variables = {
@@ -111,7 +111,7 @@ resource "aws_lambda_function" "default" {
 resource "aws_lambda_event_source_mapping" "default" {
   event_source_arn = data.aws_sqs_queue.name-update-queue.arn
   function_name    = aws_lambda_function.default.arn
-  batch_size       = 10
+  batch_size       = 5
   scaling_config {
     maximum_concurrency = 10 // Keep below 10 to avoid exceeding Riot API rate limits
   }

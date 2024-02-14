@@ -108,3 +108,11 @@ resource "aws_lambda_function" "default" {
   }
 }
 
+resource "aws_lambda_event_source_mapping" "default" {
+  event_source_arn = data.aws_sqs_queue.name-update-queue.arn
+  function_name    = aws_lambda_function.default.arn
+  batch_size       = 10
+  scaling_config {
+    maximum_concurrency = 10 // Keep below 10 to avoid exceeding Riot API rate limits
+  }
+}

@@ -144,6 +144,7 @@ resource "aws_lambda_function" "default" {
 resource "aws_scheduler_schedule" "hourly" {
   name = "name-updater-hourly"
   schedule_expression = "cron(0 * ? * * *)" // Every hour
+  state = "DISABLED"
 
   flexible_time_window {
     mode = "OFF"
@@ -155,6 +156,52 @@ resource "aws_scheduler_schedule" "hourly" {
 
     input = jsonencode({
       "refreshType": "hourly"
+    })
+
+    retry_policy {
+      maximum_retry_attempts = 0
+    }
+  }
+}
+
+resource "aws_scheduler_schedule" "weekly" {
+  name = "name-updater-weekly"
+  schedule_expression = "cron(0 0 ? * 6 *)" // Every Friday
+  state = "DISABLED"
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  target {
+    arn = aws_lambda_function.default.arn
+    role_arn = aws_iam_role.scheduler_exec.arn
+
+    input = jsonencode({
+      "refreshType": "weekly"
+    })
+
+    retry_policy {
+      maximum_retry_attempts = 0
+    }
+  }
+}
+
+resource "aws_scheduler_schedule" "monthly" {
+  name = "name-updater-monthly"
+  schedule_expression = "cron(0 0 1 * ? *)" // First day of each month
+  state = "DISABLED"
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  target {
+    arn = aws_lambda_function.default.arn
+    role_arn = aws_iam_role.scheduler_exec.arn
+
+    input = jsonencode({
+      "refreshType": "monthly"
     })
 
     retry_policy {

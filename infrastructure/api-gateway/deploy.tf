@@ -61,5 +61,5 @@ resource "aws_lambda_permission" "api-summoner-permission" {
     action = "lambda:InvokeFunction"
     function_name = data.aws_lambda_function.api-summoner.function_name
     principal = "apigateway.amazonaws.com"
-    source_arn = aws_api_gateway_rest_api.default.execution_arn
+    source_arn = "${aws_api_gateway_rest_api.default.execution_arn}/*/*"
 }

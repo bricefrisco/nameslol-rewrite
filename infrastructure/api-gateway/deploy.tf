@@ -22,7 +22,7 @@ resource "aws_api_gateway_deployment" "deployment" {
   depends_on  = [
     aws_api_gateway_integration.api-summoner-integration
   ]
-  stage_description = "Deployment: #1"
+  stage_description = "Deployment: #2"
   rest_api_id = aws_api_gateway_rest_api.default.id
   stage_name  = "prod"
 }

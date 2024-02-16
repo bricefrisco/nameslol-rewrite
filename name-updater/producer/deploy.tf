@@ -145,6 +145,10 @@ resource "aws_scheduler_schedule" "hourly" {
   name = "name-updater-hourly"
   schedule_expression = "cron(0 * ? * * *)" // Every hour
 
+  flexible_time_window {
+    mode = "OFF"
+  }
+
   target {
     arn = aws_lambda_function.default.arn
     role_arn = aws_iam_role.scheduler_exec.arn

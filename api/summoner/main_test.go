@@ -348,3 +348,60 @@ func TestHandleRequest_HasCorrectHeadersOnFailure(t *testing.T) {
 		}
 	}
 }
+
+func TestHandleRequest_Returns200OnOptionsRequest(t *testing.T) {
+	setup()
+
+	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "OPTIONS",
+	}
+
+	res, err := HandleRequest(nil, request)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("Expected status code 200, got %d", res.StatusCode)
+	}
+}
+
+func TestHandleRequest_HasCorrectHeadersOnOptionsRequest(t *testing.T) {
+	setup()
+
+	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "OPTIONS",
+	}
+
+	res, err := HandleRequest(nil, request)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+
+	for k, v := range expectedHeaders {
+		if res.Headers[k] != v {
+			t.Errorf("Expected header %s to be %s, got %s", k, v, res.Headers[k])
+		}
+	}
+}
+
+func TestHandleRequest_Returns405OnInvalidMethod(t *testing.T) {
+	setup()
+
+	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "POST",
+	}
+
+	res, err := HandleRequest(nil, request)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+
+	if res.StatusCode != 405 {
+		t.Errorf("Expected status code 405, got %d", res.StatusCode)
+	}
+
+	if !strings.Contains(res.Body, "Method not allowed") {
+		t.Errorf("Expected body to contain 'Method not allowed', got %s", res.Body)
+	}
+}

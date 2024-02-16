@@ -42,6 +42,14 @@ func init() {
 }
 
 func HandleRequest(_ context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	if request.HTTPMethod == "OPTIONS" {
+		return responses.Success(nil), nil
+	}
+
+	if request.HTTPMethod != "GET" {
+		return responses.Error(405, "Method not allowed"), nil
+	}
+
 	name := request.QueryStringParameters["name"]
 	if len(name) < 3 {
 		return responses.Error(400, "Query parameter 'name' must be at least 3 characters"), nil

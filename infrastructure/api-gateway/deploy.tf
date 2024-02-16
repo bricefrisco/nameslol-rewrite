@@ -43,7 +43,7 @@ resource "aws_api_gateway_resource" "api-summoner-resource" {
 resource "aws_api_gateway_method" "api-summoner-method" {
     rest_api_id = aws_api_gateway_rest_api.default.id
     resource_id = aws_api_gateway_resource.api-summoner-resource.id
-    http_method = "GET"
+    http_method = "ANY"
     authorization = "NONE"
 }
 

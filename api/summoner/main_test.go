@@ -86,6 +86,7 @@ func TestHandleRequest_ValidatesNameTooShort(t *testing.T) {
 	setup()
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "T",
@@ -110,6 +111,7 @@ func TestHandleRequest_ValidatesNameTooLong(t *testing.T) {
 	setup()
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "TestTestTestTestT",
@@ -136,6 +138,7 @@ func TestHandleRequest_ValidatesRegion(t *testing.T) {
 	regions = &RegionsServiceMock{ShouldFail: true}
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "Test",
@@ -170,6 +173,7 @@ func TestHandleRequest_CallsFetchWithCorrectParameters(t *testing.T) {
 	setup()
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "Test",
@@ -203,6 +207,7 @@ func TestHandleRequest_ReturnsErrorOnFetchError(t *testing.T) {
 	mockSummoners.ShouldFetchFail = true
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "Test",
@@ -230,6 +235,7 @@ func TestHandleRequest_Returns404WhenSummonerNotFound(t *testing.T) {
 	mockSummoners.ShouldReturnNotFound = true
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "Test",
@@ -254,6 +260,7 @@ func TestHandleRequest_ReturnsSummonerOnSuccess(t *testing.T) {
 	setup()
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "Test",
@@ -286,6 +293,7 @@ func TestHandleRequest_Returns200EvenWhenSaveFails(t *testing.T) {
 	mockSummoners.ShouldSaveFail = true
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "Test",
@@ -306,6 +314,7 @@ func TestHandleRequest_HasCorrectHeadersOnSuccess(t *testing.T) {
 	setup()
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "Test",
@@ -331,6 +340,7 @@ func TestHandleRequest_HasCorrectHeadersOnFailure(t *testing.T) {
 	mockSummoners.ShouldFetchFail = true
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "NA",
 			"name":   "Test",

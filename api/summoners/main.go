@@ -42,6 +42,14 @@ func init() {
 }
 
 func HandleRequest(_ context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	if request.HTTPMethod == "OPTIONS" {
+		return responses.Success(nil), nil
+	}
+
+	if request.HTTPMethod != "GET" {
+		return responses.Error(405, "Method not allowed"), nil
+	}
+
 	region := strings.ToUpper(request.QueryStringParameters["region"])
 	if !regions.Validate(region) {
 		return responses.Error(400, "Invalid 'region' query parameter"), nil

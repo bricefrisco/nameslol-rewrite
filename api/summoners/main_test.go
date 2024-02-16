@@ -103,6 +103,7 @@ func TestHandleRequest_Returns400ErrorWhenRegionIsInvalid(t *testing.T) {
 	regions.(*RegionMock).IsValid = false
 
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region": "invalid",
 		},
@@ -137,6 +138,7 @@ func TestHandleRequest_Returns400ErrorWhenRegionIsInvalid(t *testing.T) {
 func TestHandleRequest_Returns400ErrorWhenTimestampIsInvalid(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":    "na",
 			"timestamp": "invalid",
@@ -164,6 +166,7 @@ func TestHandleRequest_Returns400ErrorWhenTimestampIsInvalid(t *testing.T) {
 func TestHandleRequest_Returns400ErrorWhenTimestampIsZero(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":    "na",
 			"timestamp": "0",
@@ -191,6 +194,7 @@ func TestHandleRequest_Returns400ErrorWhenTimestampIsZero(t *testing.T) {
 func TestHandleRequest_Returns400ErrorWhenNameLengthIsInvalid(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":     "na",
 			"timestamp":  "1",
@@ -219,6 +223,7 @@ func TestHandleRequest_Returns400ErrorWhenNameLengthIsInvalid(t *testing.T) {
 func TestHandleRequest_Returns400ErrorWhenNameLengthIsTooLong(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":     "na",
 			"timestamp":  "1",
@@ -247,6 +252,7 @@ func TestHandleRequest_Returns400ErrorWhenNameLengthIsTooLong(t *testing.T) {
 func TestHandleRequest_Returns400ErrorWhenBackwardsIsInvalid(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":    "na",
 			"timestamp": "1",
@@ -275,6 +281,7 @@ func TestHandleRequest_Returns400ErrorWhenBackwardsIsInvalid(t *testing.T) {
 func TestHandleRequest_CallsGetAfterWhenNameLengthIsNotPassed(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":    "na",
 			"timestamp": "1",
@@ -295,6 +302,7 @@ func TestHandleRequest_CallsGetAfterWhenNameLengthIsNotPassed(t *testing.T) {
 func TestHandleRequest_CallsGetByNameLengthWhenNameLengthIsPassed(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":     "na",
 			"timestamp":  "1",
@@ -316,6 +324,7 @@ func TestHandleRequest_CallsGetByNameLengthWhenNameLengthIsPassed(t *testing.T) 
 func TestHandleRequest_DefaultsBackwardsToFalseWhenNotPassed(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":    "na",
 			"timestamp": "1",
@@ -339,6 +348,7 @@ func TestHandleRequest_DefaultsBackwardsToFalseWhenNotPassed(t *testing.T) {
 func TestHandleRequest_CallsGetAfterWithCorrectParameters(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":    "na",
 			"timestamp": "1",
@@ -375,6 +385,7 @@ func TestHandleRequest_CallsGetAfterWithCorrectParameters(t *testing.T) {
 func TestHandleRequest_CallsGetByNameLengthWithCorrectParameters(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":     "na",
 			"timestamp":  "1",
@@ -417,6 +428,7 @@ func TestHandleRequest_Returns500ErrorWhenGetAfterReturnsError(t *testing.T) {
 	setup()
 	summoners.(*SummonersMock).ReturnError = true
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":    "na",
 			"timestamp": "1",
@@ -444,6 +456,7 @@ func TestHandleRequest_Returns500ErrorWhenGetAfterReturnsError(t *testing.T) {
 func TestHandleRequest_Returns200SuccessWhenGetAfterReturnsNoError(t *testing.T) {
 	setup()
 	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "GET",
 		QueryStringParameters: map[string]string{
 			"region":    "na",
 			"timestamp": "1",
@@ -461,5 +474,42 @@ func TestHandleRequest_Returns200SuccessWhenGetAfterReturnsNoError(t *testing.T)
 
 	if responses.(*HttpResponsesMock).SuccessCalls[0] == nil {
 		t.Errorf("Expected response to not be nil, got nil")
+	}
+}
+
+func TestHandleRequest_Returns200OnOptionsRequest(t *testing.T) {
+	setup()
+	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "OPTIONS",
+	}
+
+	_, err := HandleRequest(nil, request)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+
+	if len(responses.(*HttpResponsesMock).SuccessCalls) != 1 {
+		t.Errorf("Expected 1 success response, got %d", len(responses.(*HttpResponsesMock).SuccessCalls))
+	}
+}
+
+func TestHandleRequest_Returns405ErrorWhenMethodIsNotGet(t *testing.T) {
+	setup()
+
+	request := events.APIGatewayProxyRequest{
+		HTTPMethod: "POST",
+	}
+
+	_, err := HandleRequest(nil, request)
+	if err != nil {
+		t.Errorf("Expected no error, got %v", err)
+	}
+
+	if len(responses.(*HttpResponsesMock).ErrorCalls) != 1 {
+		t.Errorf("Expected 1 error response, got %d", len(responses.(*HttpResponsesMock).ErrorCalls))
+	}
+
+	if responses.(*HttpResponsesMock).ErrorCalls[0].StatusCode != 405 {
+		t.Errorf("Expected status code 405, got %d", responses.(*HttpResponsesMock).ErrorCalls[0].StatusCode)
 	}
 }

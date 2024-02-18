@@ -31,7 +31,7 @@ jobs:
           working-directory: ./shared
 
       - name: golang-ci-lint (shared)
-        uses: golangci/goloangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v4
         with:
           working-directory: ./api/summoner
 

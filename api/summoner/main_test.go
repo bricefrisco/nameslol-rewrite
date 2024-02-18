@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
@@ -93,7 +94,7 @@ func TestHandleRequest_ValidatesNameTooShort(t *testing.T) {
 		},
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -118,7 +119,7 @@ func TestHandleRequest_ValidatesNameTooLong(t *testing.T) {
 		},
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -145,7 +146,7 @@ func TestHandleRequest_ValidatesRegion(t *testing.T) {
 		},
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -182,7 +183,7 @@ func TestHandleRequest_CallsFetchWithCorrectParameters(t *testing.T) {
 
 	mockSummoners := summoners.(*SummonersServiceMock)
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -214,7 +215,7 @@ func TestHandleRequest_ReturnsErrorOnFetchError(t *testing.T) {
 		},
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -242,7 +243,7 @@ func TestHandleRequest_Returns404WhenSummonerNotFound(t *testing.T) {
 		},
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -267,7 +268,7 @@ func TestHandleRequest_ReturnsSummonerOnSuccess(t *testing.T) {
 		},
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -300,7 +301,7 @@ func TestHandleRequest_Returns200EvenWhenSaveFails(t *testing.T) {
 		},
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -321,7 +322,7 @@ func TestHandleRequest_HasCorrectHeadersOnSuccess(t *testing.T) {
 		},
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -347,7 +348,7 @@ func TestHandleRequest_HasCorrectHeadersOnFailure(t *testing.T) {
 		},
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -366,7 +367,7 @@ func TestHandleRequest_Returns200OnOptionsRequest(t *testing.T) {
 		HTTPMethod: "OPTIONS",
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -383,7 +384,7 @@ func TestHandleRequest_HasCorrectHeadersOnOptionsRequest(t *testing.T) {
 		HTTPMethod: "OPTIONS",
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -402,7 +403,7 @@ func TestHandleRequest_Returns405OnInvalidMethod(t *testing.T) {
 		HTTPMethod: "POST",
 	}
 
-	res, err := HandleRequest(nil, request)
+	res, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}

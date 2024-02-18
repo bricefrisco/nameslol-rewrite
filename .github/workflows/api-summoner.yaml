@@ -1,6 +1,11 @@
 name: api-summoner
 
 on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'api/summoner/**'
+      - 'shared/**'
   push:
     branches: [ master ]
     paths:
@@ -9,7 +14,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  package-and-deploy:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.21.3"
+
+      - name: golang-ci-lint (summoner)
+        uses: golangci/goloangci-lint-action@v4
+        with:
+          working-directory: ./shared
+
+      - name: golang-ci-lint (shared)
+        uses: golangci/goloangci-lint-action@v4
+        with:
+          working-directory: ./api/summoner
+
+  test:
+    needs: [lint]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -28,9 +55,36 @@ jobs:
         run: go test -v .
         working-directory: ./api/summoner
 
+  build:
+    needs: [test]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.21.3"
+
       - name: Build Go Lambda Artifact
         run: GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o bootstrap -tags lambda.norpc main.go
         working-directory: ./api/summoner
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aws-lambda-executable
+          path: ./api/summoner/bootstrap
+
+  deploy:
+    needs: [build]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -47,6 +101,12 @@ jobs:
       - name: Initialize Terraform
         run: terraform init
         working-directory: ./api/summoner
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: aws-lambda-executable
+          path: ./api/summoner
 
       - name: Deploy with Terraform
         run: terraform apply -auto-approve

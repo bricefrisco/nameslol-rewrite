@@ -26,7 +26,7 @@ jobs:
           go-version: ">=1.21.3"
 
       - name: golang-ci-lint (summoner)
-        uses: golangci/goloangci-lint-action@v4
+        uses: golangci/golang-lint-action@v4
         with:
           working-directory: ./shared
 

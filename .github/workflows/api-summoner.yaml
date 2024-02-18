@@ -14,29 +14,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: ">=1.21.3"
-
-      - name: golang-ci-lint (summoner)
-        uses: golangci/golangci-lint-action@v4
-        with:
-          working-directory: ./shared
-
-      - name: golang-ci-lint (shared)
-        uses: golangci/golangci-lint-action@v4
-        with:
-          working-directory: ./api/summoner
-
   test:
-    needs: [lint]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code

@@ -83,6 +83,10 @@ func (s *Summoners) Fetch(region string, summonerName string) (*SummonerDTO, err
 
 	url := fmt.Sprintf("https://%s.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s", riotRegion, summonerName)
 	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header.Add("X-Riot-Token", s.riotApiKey)
 
 	resp, err := s.http.Do(req)
@@ -104,9 +108,10 @@ func (s *Summoners) Fetch(region string, summonerName string) (*SummonerDTO, err
 		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			responseBody = "(unknown)"
+		} else {
+			responseBody = string(bodyBytes)
 		}
 
-		responseBody = string(bodyBytes)
 		return nil, fmt.Errorf("riot api returned status code %d with body %s", resp.StatusCode, responseBody)
 	}
 

@@ -15,6 +15,6 @@ on:
 
 jobs:
   lambda-workflow:
-    uses: ./.github/workflows/lambda-workflow.yaml@master
+    uses: ./.github/workflows/lambda-workflow.yaml
     with:
       service_path: './api/summoner'

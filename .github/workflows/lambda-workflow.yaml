@@ -2,13 +2,10 @@ name: AWS Lambda CI/CD Workflow
 
 on:
   workflow_call:
+    secrets:
+      - aws-access-key-id
+      - aws-secret-access-key
     inputs:
-      aws-access-key-id:
-        required: true
-        type: string
-      aws-secret-access-key:
-        required: true
-        type: string
       aws-region:
         required: true
         type: string
@@ -70,9 +67,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ inputs.aws-access-key-id }}
-          aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3

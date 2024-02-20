@@ -1,6 +1,11 @@
 name: name-updater-producer
 
 on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'name-updater/producer/**'
+      - 'shared/**'
   push:
     branches: [ master ]
     paths:
@@ -9,45 +14,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  package-and-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: ">=1.21.3"
-
-      - name: Test Shared Libraries
-        run: go test -v .
-        working-directory: ./shared
-
-      - name: Test Producer
-        run: go test -v .
-        working-directory: ./name-updater/producer
-
-      - name: Build Go Lambda Artifact
-        run: GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o bootstrap -tags lambda.norpc main.go
-        working-directory: ./name-updater/producer
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.1.7"
-
-      - name: Initialize Terraform
-        run: terraform init
-        working-directory: ./name-updater/producer
-
-      - name: Deploy with Terraform
-        run: terraform apply -auto-approve
-        working-directory: ./name-updater/producer
+  lambda-workflow:
+    uses: ./.github/workflows/lambda-workflow.yaml
+    with:
+      service-path: './name-updater/producer'
+      aws-region: 'us-east-1'
+    secrets:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

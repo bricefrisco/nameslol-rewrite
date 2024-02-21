@@ -67,7 +67,7 @@ type MockSQSService struct {
 	}
 }
 
-func (m *MockSQSService) SendMessage(ctx context.Context, params *sqs.SendMessageInput, optFns ...func(*sqs.Options)) (*sqs.SendMessageOutput, error) {
+func (m *MockSQSService) SendMessage(ctx context.Context, params *sqs.SendMessageInput, _ ...func(*sqs.Options)) (*sqs.SendMessageOutput, error) {
 	if m.ShouldFail {
 		return nil, fmt.Errorf("error")
 	}
@@ -91,7 +91,7 @@ func TestHandleRequest_CorrectStartAndEndDateHourly(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -115,7 +115,7 @@ func TestHandleRequest_CorrectStartAndEndDateWeekly(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "weekly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -139,7 +139,7 @@ func TestHandleRequest_CorrectStartAndEndDateMonthly(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "monthly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -163,7 +163,7 @@ func TestHandleRequest_ReturnsErrorForInvalidRefreshType(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "invalid"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err == nil {
 		t.Error("expected error for invalid refresh type")
 	}
@@ -173,7 +173,7 @@ func TestHandleRequest_ValidNumberOfRegionCalls(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -188,7 +188,7 @@ func TestHandleRequest_CallsSummonersWithCorrectRegion(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -211,7 +211,7 @@ func TestHandleRequest_CallsSummonersWithCorrectLimit(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -230,7 +230,7 @@ func TestHandleRequest_ReturnsErrorWhenSummonersReturnsError(t *testing.T) {
 	}
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err == nil {
 		t.Error("expected error from HandleRequest")
 	}
@@ -240,7 +240,7 @@ func TestHandleRequest_ValidNumberOfSummonerCalls(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -255,7 +255,7 @@ func TestHandleRequest_CallsSendToQueueCorrectNumberOfTimes(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -270,7 +270,7 @@ func TestHandleRequest_CallsSendToQueueWithCorrectQueueUrl(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -285,7 +285,7 @@ func TestHandleRequest_CallsSendToQueueWithCorrectBody(t *testing.T) {
 	setup()
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
 	}
@@ -322,7 +322,7 @@ func TestHandleRequest_ReturnsErrorWhenSendToQueueReturnsError(t *testing.T) {
 	}
 
 	event := &Event{RefreshType: "hourly"}
-	err := HandleRequest(nil, event)
+	err := HandleRequest(context.TODO(), event)
 	if err == nil {
 		t.Error("expected error from HandleRequest")
 	}

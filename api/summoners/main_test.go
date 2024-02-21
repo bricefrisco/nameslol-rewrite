@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/bricefrisco/nameslol/shared"
@@ -109,7 +110,7 @@ func TestHandleRequest_Returns400ErrorWhenRegionIsInvalid(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -145,7 +146,7 @@ func TestHandleRequest_Returns400ErrorWhenTimestampIsInvalid(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -173,7 +174,7 @@ func TestHandleRequest_Returns400ErrorWhenTimestampIsZero(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -202,7 +203,7 @@ func TestHandleRequest_Returns400ErrorWhenNameLengthIsInvalid(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -231,7 +232,7 @@ func TestHandleRequest_Returns400ErrorWhenNameLengthIsTooLong(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -260,7 +261,7 @@ func TestHandleRequest_Returns400ErrorWhenBackwardsIsInvalid(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -289,7 +290,7 @@ func TestHandleRequest_CallsGetAfterWhenNameLengthIsNotPassed(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -311,7 +312,7 @@ func TestHandleRequest_CallsGetByNameLengthWhenNameLengthIsPassed(t *testing.T) 
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -331,7 +332,7 @@ func TestHandleRequest_DefaultsBackwardsToFalseWhenNotPassed(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -356,7 +357,7 @@ func TestHandleRequest_CallsGetAfterWithCorrectParameters(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -394,7 +395,7 @@ func TestHandleRequest_CallsGetByNameLengthWithCorrectParameters(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -435,7 +436,7 @@ func TestHandleRequest_Returns500ErrorWhenGetAfterReturnsError(t *testing.T) {
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -463,7 +464,7 @@ func TestHandleRequest_Returns200SuccessWhenGetAfterReturnsNoError(t *testing.T)
 		},
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -483,7 +484,7 @@ func TestHandleRequest_Returns200OnOptionsRequest(t *testing.T) {
 		HTTPMethod: "OPTIONS",
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -500,7 +501,7 @@ func TestHandleRequest_Returns405ErrorWhenMethodIsNotGet(t *testing.T) {
 		HTTPMethod: "POST",
 	}
 
-	_, err := HandleRequest(nil, request)
+	_, err := HandleRequest(context.TODO(), request)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}

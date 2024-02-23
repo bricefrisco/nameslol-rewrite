@@ -21,6 +21,7 @@ data "aws_ssm_parameter" "riot-api-token" {
 module "lambda" {
   source = "../../infrastructure/modules"
   app_name = "api-summoner"
+  bootstrap_file_path = "${path.module}/bootstrap"
   timeout = 15
   memory_size = 256
   iam_policy_statements = [

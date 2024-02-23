@@ -3,12 +3,17 @@ variable "app_name" {
   type        = string
 }
 
+variable "bootstrap_file_path" {
+  description = "The path to the bootstrap file to use for the lambda function."
+  type        = string
+}
+
 variable "iam_policy_statements" {
     description = "A list of IAM policy statements to attach to the lambda function."
     type        = list(object({
-        effect    = string
-        actions   = list(string)
-        resources = list(string)
+        Effect   = string
+        Action  = list(string)
+        Resource = list(string)
     }))
 }
 
@@ -29,8 +34,8 @@ variable "memory_size" {
 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_file = "${path.module}/bootstrap"
-  output_path = "${path.module}/bootstrap.zip"
+  source_file = var.bootstrap_file_path
+  output_path = "${var.bootstrap_file_path}.zip"
 }
 
 data "local_file" "lambda_zip_contents" {

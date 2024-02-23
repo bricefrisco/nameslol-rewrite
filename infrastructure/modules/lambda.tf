@@ -79,7 +79,5 @@ resource "aws_lambda_function" "default" {
 
   environment {
     variables = var.environment_variables
-    CORS_ORIGINS   = "http://localhost:3000"
-    CORS_METHODS   = "GET, OPTIONS"
   }
 }

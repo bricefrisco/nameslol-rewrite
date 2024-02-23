@@ -38,5 +38,7 @@ module "lambda" {
   environment_variables = {
     DYNAMODB_TABLE = data.aws_dynamodb_table.nameslol.name
     RIOT_API_TOKEN = data.aws_ssm_parameter.riot-api-token.value
+    CORS_ORIGINS   = "http://localhost:3000"
+    CORS_METHODS   = "GET, OPTIONS"
   }
 }

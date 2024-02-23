@@ -34,7 +34,7 @@ data "local_file" "lambda_zip_contents" {
 }
 
 resource "aws_iam_role" "lambda_exec" {
-  name               = "${var.app_name}_execution_role"
+  name               = "${var.app_name}-execution-role"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [

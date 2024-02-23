@@ -23,7 +23,6 @@ module "lambda" {
   app_name = "api-summoner"
   timeout = 15
   memory_size = 256
-  handler = "bootstrap"
   iam_policy_statements = [
     {
       "Effect" : "Allow",

@@ -12,31 +12,43 @@ vi.mock("react-router-dom", async (importOriginal) => {
   };
 });
 
-const renderWithProps = async ({ id }: { id: string }) => {
+const onNavigate = vi.fn();
+const createAd = vi.fn().mockResolvedValue({ onNavigate });
+
+vi.stubGlobal("nitroAds", {
+  createAd,
+});
+
+const renderWithProps = ({
+  id,
+  className,
+}: {
+  id: string;
+  className?: string;
+}) => {
   return act(() => {
     return render(
       <BrowserRouter>
-        <HorizontalAdDesktop id={id} />,
+        <HorizontalAdDesktop id={id} className={className} />,
       </BrowserRouter>,
     );
   });
 };
 
-const onNavigate = vi.fn();
-const createAd = vi.fn().mockResolvedValue({ onNavigate });
-
 beforeEach(() => {
   vi.mocked(useLocation).mockClear();
   onNavigate.mockClear();
-  vi.stubGlobal("nitroAds", {
-    createAd,
-  });
 });
 
 test("renders a div element", async () => {
   await renderWithProps({ id: "test" });
   expect(screen.getByTestId("horizontal-ad-desktop")).toBeInTheDocument();
   expect(screen.getByTestId("horizontal-ad-desktop").tagName).toBe("DIV");
+});
+
+test("renders with classname", async () => {
+  await renderWithProps({ id: "test", className: "test-class" });
+  expect(screen.getByTestId("horizontal-ad-desktop")).toHaveClass("test-class");
 });
 
 test("calls nitroAds.createAd with correct parameters", async () => {
@@ -56,7 +68,7 @@ test("calls nitroAds.createAd with correct parameters", async () => {
   });
 });
 
-test("when query parameter changes, calls ad.onNavigate", async () => {
+test("when location changes, calls ad.onNavigate", async () => {
   const { rerender } = await renderWithProps({ id: "test" });
   expect(onNavigate).not.toHaveBeenCalled();
 

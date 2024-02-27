@@ -49,8 +49,7 @@ const HorizontalAdDesktop = ({ id, className }: Props) => {
   }, [id]);
 
   useEffect(() => {
-    if (!ad) return;
-    ad.onNavigate();
+    ad?.onNavigate();
   }, [location]);
 
   return (

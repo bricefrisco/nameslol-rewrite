@@ -1,8 +1,8 @@
 import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import HorizontalAdDesktop from "./HorizontalAdDesktop.tsx";
 import { act } from "react-dom/test-utils";
 import { BrowserRouter, useLocation } from "react-router-dom";
+import HorizontalAdDesktop from "./HorizontalAdDesktop.tsx";
 
 vi.mock("react-router-dom", async (importOriginal) => {
   const mod = await importOriginal<typeof import("react-router-dom")>();

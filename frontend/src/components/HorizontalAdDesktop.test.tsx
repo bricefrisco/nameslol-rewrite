@@ -88,5 +88,5 @@ test("when location changes, calls ad.onNavigate", async () => {
     );
   });
 
-  expect(onNavigate).toHaveBeenCalled();
+  expect(onNavigate).toHaveBeenCalledTimes(1);
 });
